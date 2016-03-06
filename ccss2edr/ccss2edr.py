@@ -79,8 +79,8 @@ def main():
 
         # strip leading SAMPLE_ID and convert from mW/nm/m^2 to W/nm/m^2
         data = [float(val) / 1000.0 for val in ccss.data[set_num][1:]]
-	for dd in data:
-	    args.out.write(struct.pack('<d',dd))
+	for spectral_measurment_data in data:
+	    args.out.write(struct.pack('<d',spectral_measurment_data))
 
 
 def unasctime(timestr):
