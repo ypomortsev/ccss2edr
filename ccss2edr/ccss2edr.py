@@ -2,6 +2,7 @@
 import argparse
 import locale
 import time
+import struct
 from array import array
 from .cgats import CGATS
 from .edr import (
@@ -78,7 +79,8 @@ def main():
 
         # strip leading SAMPLE_ID and convert from mW/nm/m^2 to W/nm/m^2
         data = [float(val) / 1000.0 for val in ccss.data[set_num][1:]]
-        args.out.write(array('d', data))
+	for dd in data:
+	    args.out.write(struct.pack('<d',dd))
 
 
 def unasctime(timestr):
