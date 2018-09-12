@@ -42,8 +42,10 @@ def main():
 
     edr_header.creation_tool = 'ccss2edr'
 
-    if 'DESCRIPTOR' in ccss:
+    if 'DESCRIPTOR' in ccss and ccss['DESCRIPTOR'] != 'Not specified':
         edr_header.display_description = ccss['DESCRIPTOR']
+    elif 'DISPLAY' in ccss:
+        edr_header.display_description = ccss['DISPLAY']
     if 'ORIGINATOR' in ccss:
         edr_header.creation_tool += ' ({})'.format(ccss['ORIGINATOR'])
     if 'CREATED' in ccss:
