@@ -57,6 +57,8 @@ def main():
     if 'TECHNOLOGY' in ccss:
         if ccss['TECHNOLOGY'] in TECH_STRINGS:
             edr_header.tech_type = TECH_STRINGS.index(ccss['TECHNOLOGY'])
+        else:
+            print('Warning: Unknown technology %r' % ccss['TECHNOLOGY'])
     if args.tech_type:
         edr_header.tech_type = args.tech_type
 
