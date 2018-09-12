@@ -27,6 +27,7 @@ TECH_STRINGS = [
     'Projector RGBW Filter Wheel',
     'Projector RGBCMY Filter Wheel',
     'Projector',
+    'LCD PFS Phosphor',
     'Unknown'
 ]
 
