@@ -54,13 +54,13 @@ def main():
         edr_header.display_manufacturer_id = ccss['MANUFACTURER_ID']
     if 'MANUFACTURER' in ccss:
         edr_header.display_manufacturer = ccss['MANUFACTURER']
-    if 'TECHNOLOGY' in ccss:
+    if args.tech_type:
+        edr_header.tech_type = args.tech_type
+    elif 'TECHNOLOGY' in ccss:
         if ccss['TECHNOLOGY'] in TECH_STRINGS:
             edr_header.tech_type = TECH_STRINGS.index(ccss['TECHNOLOGY'])
         else:
             print('Warning: Unknown technology %r' % ccss['TECHNOLOGY'])
-    if args.tech_type:
-        edr_header.tech_type = args.tech_type
 
     edr_header.spectral_start_nm = float(ccss['SPECTRAL_START_NM'])
     edr_header.spectral_end_nm = float(ccss['SPECTRAL_END_NM'])
