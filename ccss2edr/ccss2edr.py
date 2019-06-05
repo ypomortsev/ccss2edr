@@ -9,7 +9,7 @@ from .edr import (
     EDRHeaderFactory,
     EDRDisplayDataHeaderFactory,
     EDRSpectralDataHeaderFactory,
-    TECH_STRINGS
+    TECH_STRINGS_TO_INDEX
 )
 
 
@@ -57,10 +57,14 @@ def main():
     if args.tech_type:
         edr_header.tech_type = args.tech_type
     elif 'TECHNOLOGY' in ccss:
-        if ccss['TECHNOLOGY'] in TECH_STRINGS:
-            edr_header.tech_type = TECH_STRINGS.index(ccss['TECHNOLOGY'])
+        tech = ccss['TECHNOLOGY']
+        if (not tech in TECH_STRINGS_TO_INDEX and
+            tech[-4:] in (" IPS", " VPA", " TFT")):
+            tech = tech[:-4]
+        if tech in TECH_STRINGS_TO_INDEX:
+            edr_header.tech_type = TECH_STRINGS_TO_INDEX[tech]
         else:
-            print('Warning: Unknown technology %r' % ccss['TECHNOLOGY'])
+            print('Warning: Unknown technology %r' % tech)
 
     edr_header.spectral_start_nm = float(ccss['SPECTRAL_START_NM'])
     edr_header.spectral_end_nm = float(ccss['SPECTRAL_END_NM'])

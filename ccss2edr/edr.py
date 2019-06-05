@@ -3,33 +3,37 @@ import struct
 from record import recordtype
 
 
-TECH_STRINGS = [
-    'Color Matching Function',
-    'Custom',
-    'CRT',
-    'LCD CCFL IPS',
-    'LCD CCFL VPA',
-    'LCD CCFL TFT',
-    'LCD CCFL Wide Gamut IPS',
-    'LCD CCFL Wide Gamut VPA',
-    'LCD CCFL Wide Gamut TFT',
-    'LCD White LED IPS',
-    'LCD White LED VPA',
-    'LCD White LED TFT',
-    'LCD RGB LED IPS',
-    'LCD RGB LED VPA',
-    'LCD RGB LED TFT',
-    'LED OLED',
-    'LED AMOLED',
-    'Plasma',
-    'LCD RG Phosphor',
-    'Projector RGB Filter Wheel',
-    'Projector RGBW Filter Wheel',
-    'Projector RGBCMY Filter Wheel',
-    'Projector',
-    'LCD PFS Phosphor',
-    'Unknown'
-]
+TECH = {
+    # Should match mapping in ArgyllCMS spectro/oemarch.c, parse_EDR
+    0: 'Color Matching Function',
+    1: 'Custom',
+    2: 'CRT',
+    3: 'LCD CCFL IPS',
+    4: 'LCD CCFL VPA',
+    5: 'LCD CCFL TFT',
+    6: 'LCD CCFL Wide Gamut IPS',
+    7: 'LCD CCFL Wide Gamut VPA',
+    8: 'LCD CCFL Wide Gamut TFT',
+    9: 'LCD White LED IPS',
+    10: 'LCD White LED VPA',
+    11: 'LCD White LED TFT',
+    12: 'LCD RGB LED IPS',
+    13: 'LCD RGB LED VPA',
+    14: 'LCD RGB LED TFT',
+    15: 'LED OLED',
+    16: 'LED AMOLED',
+    17: 'Plasma',
+    18: 'LCD RG Phosphor',
+    19: 'Projector RGB Filter Wheel',
+    20: 'Projector RGBW Filter Wheel',
+    21: 'Projector RGBCMY Filter Wheel',
+    22: 'Projector',
+    23: 'LCD PFS Phosphor',
+    24: 'LED WOLED',
+    64: 'LCD GB-R Phosphor IPS'
+}
+
+TECH_STRINGS_TO_INDEX = dict((v, k) for k, v in TECH.iteritems())
 
 
 class StructFactoryMeta(type):
