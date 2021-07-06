@@ -1,16 +1,11 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 import argparse
 import locale
 import time
 import struct
-from array import array
 from .cgats import CGATS
-from .edr import (
-    EDRHeaderFactory,
-    EDRDisplayDataHeaderFactory,
-    EDRSpectralDataHeaderFactory,
-    TECH_STRINGS_TO_INDEX
-)
+from .edr import (EDRHeader, EDRDisplayDataHeader, EDRSpectralDataHeader,
+                  TECH_STRINGS_TO_INDEX)
 
 
 def main():
@@ -20,14 +15,7 @@ def main():
     parser.add_argument('ccss',
                         type=argparse.FileType('r'),
                         help='.ccss input filename')
-    """
-    parser.add_argument('--ti',
-                        type=argparse.FileType('r'),
-                        help='.ti1/.ti3 filename')
-    """
-    parser.add_argument('--tech-type',
-                        type=int,
-                        help='technology type')
+    parser.add_argument('--tech-type', type=int, help='technology type')
     parser.add_argument('out',
                         type=argparse.FileType('wb'),
                         help='.edr output filename')
@@ -38,28 +26,26 @@ def main():
 
     # EDR DATA header
 
-    edr_header = EDRHeaderFactory.new()
-
-    edr_header.creation_tool = 'ccss2edr'
+    edr_header = EDRHeader()
 
     if 'DESCRIPTOR' in ccss and ccss['DESCRIPTOR'] != 'Not specified':
-        edr_header.display_description = ccss['DESCRIPTOR']
+        edr_header.display_description = ccss['DESCRIPTOR'].encode()
     elif 'DISPLAY' in ccss:
-        edr_header.display_description = ccss['DISPLAY']
+        edr_header.display_description = ccss['DISPLAY'].encode()
     if 'ORIGINATOR' in ccss:
-        edr_header.creation_tool += ' ({})'.format(ccss['ORIGINATOR'])
+        edr_header.creation_tool += ' ({})'.format(ccss['ORIGINATOR']).encode()
     if 'CREATED' in ccss:
-        edr_header.creation_time = time.mktime(unasctime(ccss['CREATED']))
+        edr_header.creation_time = int(time.mktime(unasctime(ccss['CREATED'])))
     if 'MANUFACTURER_ID' in ccss:
-        edr_header.display_manufacturer_id = ccss['MANUFACTURER_ID']
+        edr_header.display_manufacturer_id = ccss['MANUFACTURER_ID'].encode()
     if 'MANUFACTURER' in ccss:
-        edr_header.display_manufacturer = ccss['MANUFACTURER']
+        edr_header.display_manufacturer = ccss['MANUFACTURER'].encode()
     if args.tech_type:
         edr_header.tech_type = args.tech_type
     elif 'TECHNOLOGY' in ccss:
         tech = ccss['TECHNOLOGY']
-        if (not tech in TECH_STRINGS_TO_INDEX and
-            tech[-4:] in (" IPS", " VPA", " TFT")):
+        if (tech not in TECH_STRINGS_TO_INDEX
+                and tech[-4:] in (" IPS", " VPA", " TFT")):
             tech = tech[:-4]
         if tech in TECH_STRINGS_TO_INDEX:
             edr_header.tech_type = TECH_STRINGS_TO_INDEX[tech]
@@ -74,21 +60,24 @@ def main():
 
     edr_header.num_sets = int(ccss['NUMBER_OF_SETS'])
 
-    args.out.write(EDRHeaderFactory.pack(edr_header))
+    args.out.write(edr_header.pack())
 
     for set_num in range(edr_header.num_sets):
-        display_data_header = EDRDisplayDataHeaderFactory.new()
+        display_data_header = EDRDisplayDataHeader()
         # TODO?
-        args.out.write(EDRDisplayDataHeaderFactory.pack(display_data_header))
+        args.out.write(display_data_header.pack())
 
-        spectral_data_header = EDRSpectralDataHeaderFactory.new()
+        spectral_data_header = EDRSpectralDataHeader()
         spectral_data_header.num_samples = int(ccss['SPECTRAL_BANDS'])
-        args.out.write(EDRSpectralDataHeaderFactory.pack(spectral_data_header))
+        args.out.write(spectral_data_header.pack())
 
         # strip leading SAMPLE_ID and convert from mW/nm/m^2 to W/nm/m^2
-        data = [float(val) / 1000.0 for val in ccss.data[set_num][1:]]
-	for spectral_measurment_data in data:
-	    args.out.write(struct.pack('<d',spectral_measurment_data))
+        spectral_measurement_data = [
+            float(val) / 1000.0 for val in ccss.data[set_num][1:]
+        ]
+
+        for val in spectral_measurement_data:
+            args.out.write(struct.pack('<d', val))
 
 
 def unasctime(timestr):

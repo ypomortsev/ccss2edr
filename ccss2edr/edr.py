@@ -1,7 +1,7 @@
 import time
 import struct
-from record import recordtype
-
+import dataclasses
+from dataclasses import dataclass
 
 TECH = {
     # Should match mapping in ArgyllCMS spectro/oemarch.c, parse_EDR
@@ -33,133 +33,84 @@ TECH = {
     64: 'LCD GB-R Phosphor IPS'
 }
 
-TECH_STRINGS_TO_INDEX = dict((v, k) for k, v in TECH.iteritems())
+TECH_STRINGS_TO_INDEX = {v: k for k, v in TECH.items()}
 
 
-class StructFactoryMeta(type):
+class StructMeta(type):
     def __init__(cls, name, bases, d):
-        if 'record_class' not in d:
-            raise ValueError("Class %s doesn't define record_class" % name)
-        if 'defaults' not in d:
-            raise ValueError("Class %s doesn't define defaults" % name)
+        if dataclasses.is_dataclass(d):
+            raise ValueError("Class {} is not a dataclass".format(name))
         if 'struct' not in d:
-            raise ValueError("Class %s doesn't define struct" % name)
+            raise ValueError("Class {} doesn't define struct".format(name))
         type.__init__(cls, name, bases, d)
 
 
-class StructFactory(object):
-    __metaclass__ = StructFactoryMeta
-    record_class = None
-    defaults = None
+class Struct:
+    __metaclass__ = StructMeta
     struct = None
 
-    @classmethod
-    def new(cls, values=None):
-        if values is None:
-            values = cls.defaults
-        return cls.record_class(*values)
+    def pack(self):
+        return self.struct.pack(*dataclasses.astuple(self))
 
-    @classmethod
-    def pack(cls, struct_tuple):
-        return cls.struct.pack(*struct_tuple)
-
-    @classmethod
-    def pack_into(cls, buffer, offset, struct_tuple):
-        return cls.struct.pack_into(buffer, offset, *struct_tuple)
+    def pack_into(self, buffer, offset):
+        return self.struct.pack_into(buffer, offset,
+                                     *dataclasses.astuple(self))
 
     @classmethod
     def unpack(cls, string):
-        return cls.new(cls.struct.unpack(string))
+        return cls(*cls.struct.unpack(string))
 
     @classmethod
     def unpack_from(cls, buffer, offset=0):
-        return cls.new(cls.struct.unpack_from(buffer, offset))
+        return cls(*cls.struct.unpack_from(buffer, offset))
 
 
-class EDRHeaderFactory(StructFactory):
-    record_class = recordtype('EDRHeader', [
-        'magic',
-        'unknown_0x10',
-        'unknown_0x14',
-        'creation_time',
-        'creation_tool',
-        'display_description',
-        'tech_type',
-        'num_sets',
-        'display_manufacturer',
-        'display_manufacturer_id',
-        'display_model',
-        'unknown_0x228',
-        'unknown_0x22c',
-        'has_spectral_data',
-        'spectral_start_nm',
-        'spectral_end_nm',
-        'spectral_space',
-        'unknown_0x248'
-    ])
-    defaults = (
-        'EDR DATA1',
-        1,
-        1,
-        int(time.time()),
-        'edr.py',
-        '',
-        1,
-        0,
-        '',
-        '',
-        '',
-        0,
-        1,
-        1,
-        0.0,
-        0.0,
-        0.0,
-        0
-    )
+@dataclass
+class EDRHeader(Struct):
+    magic: bytes = b'EDR DATA1'
+    unknown_0x10: int = 1
+    unknown_0x14: int = 1
+    creation_time: int = int(time.time())
+    creation_tool: bytes = b'ccss2edr'
+    display_description: bytes = b''
+    tech_type: int = 1
+    num_sets: int = 0
+    display_manufacturer: bytes = b''
+    display_manufacturer_id: bytes = b''
+    display_model: bytes = b''
+    unknown_0x228: int = 0
+    unknown_0x22c: int = 1
+    has_spectral_data: int = 1
+    spectral_start_nm: float = 0.0
+    spectral_end_nm: float = 0.0
+    spectral_space: float = 0.0
+    unknown_0x248: int = 0
+
     struct = struct.Struct(
         '< 9s7x I I Q 64s 256s I I 64s 64s 64s I H H d d d I 12x')
 
 
-class EDRDisplayDataHeaderFactory(StructFactory):
-    record_class = recordtype('EDRDisplayDataHeader', [
-        'magic',
-        'RGB_r',  # 0-255
-        'RGB_g',  # 0-255
-        'RGB_b',  # 0-255
-        'type',   # either 'c' or 'x'
-        'unknown_0x58',
-        'Yxy_Y',  # these actually seem to be XYZ, at least in some edrs
-        'Yxy_x',
-        'Yxy_y',
-        'Yxy_z_internal'  # gets set to zero when edr is read?
-    ])
-    defaults = (
-        'DISPLAY DATA',
-        255,
-        255,
-        255,
-        'c',
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0
-    )
+@dataclass
+class EDRDisplayDataHeader(Struct):
+    magic: bytes = b'DISPLAY DATA'
+    RGB_r: int = 255  # 0-255
+    RGB_g: int = 255  # 0-255
+    RGB_b: int = 255  # 0-255
+    type: bytes = b'c'  # either 'c' or 'x'
+    unknown_0x58: float = 0.0
+    Yxy_Y: float = 0.0  # these actually seem to be XYZ, at least in some edrs
+    Yxy_x: float = 0.0
+    Yxy_y: float = 0.0
+    Yxy_z_internal: float = 0.0  # gets set to zero when edr is read?
+
     struct = struct.Struct('< 12s68x HHH 2s d dddd')
 
 
-class EDRSpectralDataHeaderFactory(StructFactory):
-    record_class = recordtype('EDRSpectralDataHeader', [
-        'magic',
-        'num_samples',
-        'unknown_0x20',
-        'unknown_0x24'
-    ])
-    defaults = (
-        'SPECTRAL DATA',
-        0,
-        0,
-        '0000'
-    )
+@dataclass
+class EDRSpectralDataHeader(Struct):
+    magic: bytes = b'SPECTRAL DATA'
+    num_samples: int = 0
+    unknown_0x20: int = 0
+    unknown_0x24: bytes = b'0000'
+
     struct = struct.Struct('< 13s3x I I 4s')
