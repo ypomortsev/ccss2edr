@@ -1,9 +1,15 @@
 # ccss2edr
 
-This tool converts Argyll .ccss (Colorimeter Calibration Spectral Set) files to the X-Rite
-.edr format. The motivation is to possibly get more accurate color calibration with the Dell
-UltraSharp Color Calibration Solution by feeding it a more accurate backlight spectrum profile
-instead of a generic W-LED or RG-LED profile.
+This tool converts Argyll .ccss (Colorimeter Calibration Spectral Set) files to
+the X-Rite .edr format.
+
+The motivation is to get more accurate color calibration using the i1Display Pro
+(i1d3) colorimeter in software that uses the X-Rite SDK, like Calman or X-Rite
+i1Profiler. The SDK ships with some generic EDRs that may not accurately match
+the spectral distribution of your display. Converting a .ccss correction file
+for your specific device (for example, from the [DisplayCAL corrections
+database](https://colorimetercorrections.displaycal.net/)) and replacing the
+generic EDR should yield better results.
 
 ## Usage
 
