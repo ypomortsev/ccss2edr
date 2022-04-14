@@ -7,8 +7,8 @@ instead of a generic W-LED or RG-LED profile.
 
 ## Usage
 
-1. Install Python 3.9
-2. Install [pipenv](https://pipenv-fork.readthedocs.io/en/latest/index.html)
-3. Run `pipenv install`
-4. Run `pipenv run ccss2edr in.ccss out.edr` to convert the CCSS file `in.ccss`
+1. Install Python 3.9+
+2. Install [Poetry](https://python-poetry.org/docs/#installation)
+3. Run `poetry install`
+4. Run `poetry run ccss2edr in.ccss out.edr` to convert the CCSS file `in.ccss`
    in the current working directory to `out.edr`

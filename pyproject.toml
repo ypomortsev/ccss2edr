@@ -1,3 +1,19 @@
+[tool.poetry]
+name = "ccss2edr"
+version = "0.0.2"
+description = "Tool to convert Argyll .ccss calibration files to the X-Rite EDR format"
+authors = ["Yegor Pomortsev <yegor@pomortsev.com>"]
+license = "MIT"
+
+[tool.poetry.dependencies]
+python = "^3.9"
+
+[tool.poetry.dev-dependencies]
+
+[tool.poetry.scripts]
+ccss2edr = "ccss2edr.ccss2edr:main"
+dumpedr = "ccss2edr.dumpedr:main"
+
 [build-system]
-requires = ["setuptools", "wheel"]
-build-backend = "setuptools.build_meta:__legacy__"
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
