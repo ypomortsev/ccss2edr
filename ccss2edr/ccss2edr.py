@@ -54,9 +54,7 @@ def main():
 
     edr_header.spectral_start_nm = float(ccss['SPECTRAL_START_NM'])
     edr_header.spectral_end_nm = float(ccss['SPECTRAL_END_NM'])
-    edr_header.spectral_space = (edr_header.spectral_end_nm -
-                                 edr_header.spectral_start_nm) / (
-                                     int(ccss['SPECTRAL_BANDS']) - 1)
+    edr_header.spectral_norm = float(ccss['SPECTRAL_NORM'])
 
     edr_header.num_sets = int(ccss['NUMBER_OF_SETS'])
 

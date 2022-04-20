@@ -37,6 +37,7 @@ TECH_STRINGS_TO_INDEX = {v: k for k, v in TECH.items()}
 
 
 class StructMeta(type):
+
     def __init__(cls, name, bases, d):
         if dataclasses.is_dataclass(d):
             raise ValueError("Class {} is not a dataclass".format(name))
@@ -83,7 +84,7 @@ class EDRHeader(Struct):
     has_spectral_data: int = 1
     spectral_start_nm: float = 0.0
     spectral_end_nm: float = 0.0
-    spectral_space: float = 0.0
+    spectral_norm: float = 0.0
     unknown_0x248: int = 0
 
     struct = struct.Struct(
