@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "ccss2edr"
-version = "0.0.2"
+version = "0.1.0"
 description = "Tool to convert Argyll .ccss calibration files to the X-Rite EDR format"
 authors = ["Yegor Pomortsev <yegor@pomortsev.com>"]
 license = "MIT"
